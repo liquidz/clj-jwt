@@ -61,3 +61,19 @@
     (fact "'nbf' claim should be converted as IntDate."
       (-> token :claims :nbf) => 946782245)))
 
+(facts "str->jwt"
+  (let [claim {:iss "foo"}
+        before (jwt claim)
+        after  (-> before to-str str->jwt)]
+    (fact "plain jwt"
+      (:header before)    => (:header after)
+      (:claims before)    => (:claims after)
+      (:signature before) => (:signature after)))
+
+  (let [claim {:iss "foo"}
+        before (-> claim jwt (sign "foo"))
+        after  (-> before to-str str->jwt)]
+    (fact "signed jwt"
+      (:header before)    => (:header after)
+      (:claims before)    => (:claims after)
+      (:signature before) => (:signature after))))

@@ -1,12 +1,14 @@
 (ns jwt.core
   (:require
-    [jwt.base64        :refer [url-safe-encode]]
+    [jwt.base64        :refer [url-safe-encode url-safe-decode]]
     [jwt.sign          :refer [get-signature-fn]]
     [clj-time.coerce   :refer [to-long]]
-    [clojure.data.json :as json]))
+    [clojure.data.json :as json]
+    [clojure.string    :as str]))
 
 (def ^:private DEFAULT_SIGNATURE_ALGORITHM :HS256)
-(def ^:private make-encoded-json (comp url-safe-encode json/write-str))
+(def ^:private map->encoded-json (comp url-safe-encode json/write-str))
+(def ^:private encoded-json->map (comp #(json/read-str % :key-fn keyword) url-safe-decode))
 (defn- update-map [m k f] (if (contains? m k) (update-in m [k] f) m))
 (defn- joda-time? [x] (= org.joda.time.DateTime (type x)))
 (defn- to-intdate [d] {:pre [(joda-time? d)]} (int (/ (to-long d) 1000)))
@@ -26,13 +28,14 @@
 (extend-protocol JsonWebToken
   JWT
   (init [this claims]
-    (assoc this :header {:alg "none" :typ "JWT"} :claims claims :signature ""))
+    (let [claims (reduce #(update-map % %2 to-intdate) claims [:exp :nbf :iot])]
+      (assoc this :header {:alg "none" :typ "JWT"} :claims claims :signature "")))
 
   (encoded-header [this]
-    (-> this :header make-encoded-json))
+    (-> this :header map->encoded-json))
 
   (encoded-claims [this]
-    (-> this :claims make-encoded-json))
+    (-> this :claims map->encoded-json))
 
   (to-str [this]
     (str (encoded-header this) "." (encoded-claims this) "." (get this :signature ""))))
@@ -61,8 +64,11 @@
 
 
 ; =jwt
-(defn jwt [claim]
-  (init (->JWT "" "" "")
-        (reduce #(update-map % %2 to-intdate) claim [:exp :nbf :iot])))
+(defn jwt [claim] (init (->JWT "" "" "") claim))
 
+(defn str->jwt [jwt-string]
+  (let [[header claims signature] (str/split jwt-string #"\.")]
+    (->JWT (encoded-json->map header)
+           (encoded-json->map claims)
+           (if signature signature ""))))
 
