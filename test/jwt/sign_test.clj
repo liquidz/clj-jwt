@@ -22,7 +22,7 @@
 (facts "RSA"
   (let [[rs256 rs384 rs512] (map #(comp url-safe-encode (get-signature-fn %))
                                  [:RS256 :RS384 :RS512])
-        key (rsa-private-key "test/files/rsa/rsa.pem")
+        key (rsa-private-key "test/files/rsa/no_pass.key")
         body "foo"]
     (fact "RS256"
       (rs256 key body) => (str "VUbrxVb4ud4Iqh8h3rBHijagwFbXyml6FkqgYl9JhauWMZReM4brJh__KlBeF"

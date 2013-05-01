@@ -30,11 +30,15 @@
       (str/replace "+" "-")
       (str/replace "/" "_")))
 
-(defn decode [x]
+(defn decode [x & {:keys [string?] :or {string? true}}]
   (with-open [in  (input-stream x)
               out (ByteArrayOutputStream.)]
     (base64/decoding-transfer in out)
-    (.toString out)))
+    (if string?
+      (.toString out)
+      (.toByteArray out)
+      )
+    ))
 
 (defn url-safe-decode [^String s]
   (-> (case (mod (count s) 4)
@@ -45,3 +49,11 @@
       (str/replace "_" "/")
       decode))
 
+(defn url-safe-decode* [^String s]
+  (-> (case (mod (count s) 4)
+        2 (str s "==")
+        3 (str s "=")
+        s)
+      (str/replace "-" "+")
+      (str/replace "_" "/")
+      (decode :string? false)))

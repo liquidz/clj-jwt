@@ -1,10 +1,16 @@
 (ns jwt.core
   (:require
-    [jwt.base64        :refer [url-safe-encode url-safe-decode]]
-    [jwt.sign          :refer [get-signature-fn]]
+    [jwt.base64        :refer [url-safe-encode url-safe-decode
+                               url-safe-decode*
+                               ]]
+    [jwt.rsa.key :as k]
+    [jwt.sign          :refer [get-signature-fn get-verify-fn]]
     [clj-time.coerce   :refer [to-long]]
     [clojure.data.json :as json]
-    [clojure.string    :as str]))
+    [clojure.string    :as str]
+    
+    [clojure.java.io :as io]
+    ))
 
 (def ^:private DEFAULT_SIGNATURE_ALGORITHM :HS256)
 (def ^:private map->encoded-json (comp url-safe-encode json/write-str))
@@ -47,7 +53,8 @@
 (defprotocol JsonWebSignature
   "Protocol for JonWebSignature"
   (set-alg [this alg] "Set algorithm name to JWS Header Parameter")
-  (sign    [this key] [this alg key] "Set signature to this token"))
+  (sign    [this key] [this alg key] "Set signature to this token")
+  (verify  [this] [this key] "Verify this token"))
 
 (extend-protocol JsonWebSignature
   JWT
@@ -60,7 +67,25 @@
      (let [this*   (set-alg this alg)
            sign-fn (comp url-safe-encode (get-signature-fn alg))
            data    (str (encoded-header this*) "." (encoded-claims this*))]
-       (assoc this* :signature (sign-fn key data))))))
+       (assoc this* :signature (sign-fn key data)))))
+
+  (verify
+    ([this] (verify this ""))
+    ([this key]
+     (let [alg (-> this :header :alg keyword)]
+       (cond
+         (= :none alg) (= "" (:signature this))
+
+         (some #(= % alg) [:HS256 :HS384 :HS512])
+         (let [sign-fn (comp url-safe-encode (get-signature-fn alg))
+               data    (str (encoded-header this) "." (encoded-claims this))]
+           (= (:signature this) (sign-fn key data)))
+
+         (some #(= % alg) [:RS256 :RS384 :RS512])
+         (let [verify-fn (get-verify-fn alg)
+               data    (str (encoded-header this) "." (encoded-claims this))]
+           (verify-fn key data (-> this :signature url-safe-decode*)))
+         )))))
 
 
 ; =jwt
@@ -71,4 +96,3 @@
     (->JWT (encoded-json->map header)
            (encoded-json->map claims)
            (if signature signature ""))))
-
