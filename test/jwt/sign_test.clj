@@ -1,12 +1,12 @@
 (ns jwt.sign-test
   (:require
     [jwt.sign    :refer :all]
-    [jwt.base64  :refer [url-safe-encode]]
+    [jwt.base64  :refer [url-safe-encode-str]]
     [jwt.rsa.key :refer [rsa-private-key]]
     [midje.sweet :refer :all]))
 
 (facts "HMAC"
-  (let [[hs256 hs384 hs512] (map #(comp url-safe-encode (get-signature-fn %))
+  (let [[hs256 hs384 hs512] (map #(comp url-safe-encode-str (get-signature-fn %))
                                  [:HS256 :HS384 :HS512])
         key "foo", body "foo"]
     (fact "HS256"
@@ -20,7 +20,7 @@
                                "TNH67E1N7Rh_6z9XnIJBCPj2g"))))
 
 (facts "RSA"
-  (let [[rs256 rs384 rs512] (map #(comp url-safe-encode (get-signature-fn %))
+  (let [[rs256 rs384 rs512] (map #(comp url-safe-encode-str (get-signature-fn %))
                                  [:RS256 :RS384 :RS512])
         key (rsa-private-key "test/files/rsa/no_pass.key")
         body "foo"]

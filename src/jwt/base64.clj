@@ -1,9 +1,7 @@
 (ns jwt.base64
   (:require [clojure.data.codec.base64 :as base64]
-            [clojure.string :as str]
-            )
-  (:import [java.io ByteArrayInputStream ByteArrayOutputStream]
-           ))
+            [clojure.string            :as str])
+  (:import [java.io ByteArrayInputStream ByteArrayOutputStream]))
 
 (defprotocol ByteArrayInput
   (input-stream [this]))
@@ -16,29 +14,31 @@
   ByteArrayInput
   (input-stream [src] (ByteArrayInputStream. src)))
 
-
 (defn encode [x]
   (with-open [in  (input-stream x)
               out (ByteArrayOutputStream.)]
     (base64/encoding-transfer in out)
-    (.toString out)))
+    (.toByteArray out)))
 
-(defn url-safe-encode [s]
-  (-> (encode s)
+(defn encode-str [x & {:keys [charset] :or {charset "UTF-8"}}]
+  (String. (encode x) charset))
+
+(defn decode [x]
+  (with-open [in  (input-stream x)
+              out (ByteArrayOutputStream.)]
+    (base64/decoding-transfer in out)
+    (.toByteArray out)))
+
+(defn decode-str [x & {:keys [charset] :or {charset "UTF-8"}}]
+  (String. (decode x) charset))
+
+
+(defn url-safe-encode-str [x]
+  (-> (encode-str x)
       (str/replace #"\s" "")
       (str/replace "=" "")
       (str/replace "+" "-")
       (str/replace "/" "_")))
-
-(defn decode [x & {:keys [string?] :or {string? true}}]
-  (with-open [in  (input-stream x)
-              out (ByteArrayOutputStream.)]
-    (base64/decoding-transfer in out)
-    (if string?
-      (.toString out)
-      (.toByteArray out)
-      )
-    ))
 
 (defn url-safe-decode [^String s]
   (-> (case (mod (count s) 4)
@@ -49,11 +49,5 @@
       (str/replace "_" "/")
       decode))
 
-(defn url-safe-decode* [^String s]
-  (-> (case (mod (count s) 4)
-        2 (str s "==")
-        3 (str s "=")
-        s)
-      (str/replace "-" "+")
-      (str/replace "_" "/")
-      (decode :string? false)))
+(defn url-safe-decode-str [^String s & {:keys [charset] :or {charset "UTF-8"}}]
+  (String. (url-safe-decode s) charset))

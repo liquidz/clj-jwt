@@ -1,20 +1,14 @@
 (ns jwt.core
   (:require
-    [jwt.base64        :refer [url-safe-encode url-safe-decode
-                               url-safe-decode*
-                               ]]
-    [jwt.rsa.key :as k]
+    [jwt.base64        :refer [url-safe-encode-str url-safe-decode url-safe-decode-str]]
     [jwt.sign          :refer [get-signature-fn get-verify-fn]]
     [clj-time.coerce   :refer [to-long]]
     [clojure.data.json :as json]
-    [clojure.string    :as str]
-    
-    [clojure.java.io :as io]
-    ))
+    [clojure.string    :as str]))
 
 (def ^:private DEFAULT_SIGNATURE_ALGORITHM :HS256)
-(def ^:private map->encoded-json (comp url-safe-encode json/write-str))
-(def ^:private encoded-json->map (comp #(json/read-str % :key-fn keyword) url-safe-decode))
+(def ^:private map->encoded-json (comp url-safe-encode-str json/write-str))
+(def ^:private encoded-json->map (comp #(json/read-str % :key-fn keyword) url-safe-decode-str))
 (defn- update-map [m k f] (if (contains? m k) (update-in m [k] f) m))
 (defn- joda-time? [x] (= org.joda.time.DateTime (type x)))
 (defn- to-intdate [d] {:pre [(joda-time? d)]} (int (/ (to-long d) 1000)))
@@ -65,7 +59,7 @@
     ([this key] (sign this DEFAULT_SIGNATURE_ALGORITHM key))
     ([this alg key]
      (let [this*   (set-alg this alg)
-           sign-fn (comp url-safe-encode (get-signature-fn alg))
+           sign-fn (comp url-safe-encode-str (get-signature-fn alg))
            data    (str (encoded-header this*) "." (encoded-claims this*))]
        (assoc this* :signature (sign-fn key data)))))
 
@@ -77,14 +71,14 @@
          (= :none alg) (= "" (:signature this))
 
          (some #(= % alg) [:HS256 :HS384 :HS512])
-         (let [sign-fn (comp url-safe-encode (get-signature-fn alg))
+         (let [sign-fn (comp url-safe-encode-str (get-signature-fn alg))
                data    (str (encoded-header this) "." (encoded-claims this))]
            (= (:signature this) (sign-fn key data)))
 
          (some #(= % alg) [:RS256 :RS384 :RS512])
          (let [verify-fn (get-verify-fn alg)
                data    (str (encoded-header this) "." (encoded-claims this))]
-           (verify-fn key data (-> this :signature url-safe-decode*)))
+           (verify-fn key data (-> this :signature url-safe-decode)))
          )))))
 
 
