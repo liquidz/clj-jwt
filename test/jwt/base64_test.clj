@@ -3,7 +3,6 @@
     [jwt.base64  :refer :all]
     [midje.sweet :refer :all]))
 
-
 (facts "base64/encode"
   (fact "string -> byte array encode"
     (class   (encode "foo"))     => (Class/forName "[B")
@@ -37,8 +36,7 @@
   (fact "string -> string decode"
     (decode-str "Zm9v")         => "foo"
     (decode-str "YmFy")         => "bar"
-    (decode-str "Zm9vLmJhcg==") => "foo.bar"
-    )
+    (decode-str "Zm9vLmJhcg==") => "foo.bar")
 
   (fact "byte array -> string decode"
     (decode-str (.getBytes "Zm9v" "UTF-8"))         => "foo"
@@ -72,5 +70,4 @@
     (class   (url-safe-decode "Zm9v"))       => (Class/forName "[B")
     (String. (url-safe-decode "Zm9v"))       => "foo"
     (String. (url-safe-decode "YmFy"))       => "bar"
-    (String. (url-safe-decode "Zm9vLmJhcg")) => "foo.bar")
-  )
+    (String. (url-safe-decode "Zm9vLmJhcg")) => "foo.bar"))

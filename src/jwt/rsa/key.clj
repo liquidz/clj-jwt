@@ -20,4 +20,7 @@
 
 (defn rsa-public-key
   [& args]
-  (.getPublic (apply rsa-key args)))
+  (let [res (apply rsa-key args)]
+    (if (= org.bouncycastle.jce.provider.JCERSAPublicKey (type res))
+      res
+      (.getPublic res))))

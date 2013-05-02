@@ -6,8 +6,7 @@
     [midje.sweet :refer :all]))
 
 (facts "HMAC"
-  (let [[hs256 hs384 hs512] (map #(comp url-safe-encode-str (get-signature-fn %))
-                                 [:HS256 :HS384 :HS512])
+  (let [[hs256 hs384 hs512] (map get-signature-fn [:HS256 :HS384 :HS512])
         key "foo", body "foo"]
     (fact "HS256"
       (hs256 key body) => "CLo1fidPUoBldmx3CmOav2gJs5zP03wqMVfH9RlU2go")
@@ -20,8 +19,7 @@
                                "TNH67E1N7Rh_6z9XnIJBCPj2g"))))
 
 (facts "RSA"
-  (let [[rs256 rs384 rs512] (map #(comp url-safe-encode-str (get-signature-fn %))
-                                 [:RS256 :RS384 :RS512])
+  (let [[rs256 rs384 rs512] (map get-signature-fn [:RS256 :RS384 :RS512])
         key (rsa-private-key "test/files/rsa/no_pass.key")
         body "foo"]
     (fact "RS256"

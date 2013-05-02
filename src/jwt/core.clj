@@ -1,7 +1,7 @@
 (ns jwt.core
   (:require
-    [jwt.base64        :refer [url-safe-encode-str url-safe-decode url-safe-decode-str]]
-    [jwt.sign          :refer [get-signature-fn get-verify-fn]]
+    [jwt.base64        :refer [url-safe-encode-str url-safe-decode-str]]
+    [jwt.sign          :refer [get-signature-fn get-verify-fn supported-algorithm?]]
     [clj-time.coerce   :refer [to-long]]
     [clojure.data.json :as json]
     [clojure.string    :as str]))
@@ -20,7 +20,7 @@
 ; ----------------------------------
 (defprotocol JsonWebToken
   "Protocol for JsonWebToken"
-  (init           [this] [this claims] "Initialize token")
+  (init           [this claims] "Initialize token")
   (encoded-header [this] "Get url-safe base64 encoded header json")
   (encoded-claims [this] "Get url-safe base64 encoded claims json")
   (to-str         [this] "Generate JsonWebToken as string"))
@@ -59,7 +59,7 @@
     ([this key] (sign this DEFAULT_SIGNATURE_ALGORITHM key))
     ([this alg key]
      (let [this*   (set-alg this alg)
-           sign-fn (comp url-safe-encode-str (get-signature-fn alg))
+           sign-fn (get-signature-fn alg)
            data    (str (encoded-header this*) "." (encoded-claims this*))]
        (assoc this* :signature (sign-fn key data)))))
 
@@ -70,23 +70,20 @@
        (cond
          (= :none alg) (= "" (:signature this))
 
-         (some #(= % alg) [:HS256 :HS384 :HS512])
-         (let [sign-fn (comp url-safe-encode-str (get-signature-fn alg))
-               data    (str (encoded-header this) "." (encoded-claims this))]
-           (= (:signature this) (sign-fn key data)))
-
-         (some #(= % alg) [:RS256 :RS384 :RS512])
+         (supported-algorithm? alg)
          (let [verify-fn (get-verify-fn alg)
                data    (str (encoded-header this) "." (encoded-claims this))]
-           (verify-fn key data (-> this :signature url-safe-decode)))
-         )))))
+           (verify-fn key data (:signature this)))
 
+         :else (throw (Exception. "Unkown signature")))))))
 
 ; =jwt
 (defn jwt [claim] (init (->JWT "" "" "") claim))
 
-(defn str->jwt [jwt-string]
+; =str->jwt
+(defn str->jwt
+  [jwt-string]
   (let [[header claims signature] (str/split jwt-string #"\.")]
     (->JWT (encoded-json->map header)
            (encoded-json->map claims)
-           (if signature signature ""))))
+           (or signature ""))))

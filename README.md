@@ -2,7 +2,18 @@
 
 A Clojure library for JSON Web Token(JWT)
 
+## Supporting algorithms
+ * HS256, HS384, HS512
+ * RS256, RS384, RS512
+
 ## Usage
+
+### Leiningen
+```
+[clj-jwt "0.0.1"]
+```
+
+### Generate
 
 ```clojure
 (ns foo
@@ -16,15 +27,43 @@ A Clojure library for JSON Web Token(JWT)
    :exp (plus (now) (days 1))
    :nbf (now)})
 
+(def prv-key (rsa-private-key "private.key" "pass phrase"))
+
 ; plain JWT
 (-> claim jwt to-str)
 
-; HS256 signed JWT
-(-> claim jwt (sign :HS256 "key") to-str)
+; HMAC256 signed JWT
+(-> claim jwt (sign :HS256 "secret") to-str)
 
-; RS256 signed JWT
-(let [prv-key (rsa-private-key "foo.pem")]
-  (-> claim jwt (sign :RS256 prv-key) to-str))
+; RSA256 signed JWT
+(-> claim jwt (sign :RS256 prv-key) to-str)
+```
+
+### Verify
+
+```clojure
+(ns foo
+  (:require
+    [jwt.core      :refer :all]
+    [jwt.rsa.key   :refer [rsa-private-key rsa-public-key]]
+    [clj-time.core :refer [now plus days]]))
+
+(def claim
+  {:iss "foo"
+   :exp (plus (now) (days 1))
+   :nbf (now)})
+
+(def prv-key (rsa-private-key "private.key" "pass phrase"))
+(def pub-key (rsa-public-key  "public.key"))
+
+(let [token (-> claim jwt to-str)]
+  (-> token str->jwt verify))
+
+(let [token (-> claim jwt (sign :HS256 "secret") to-str)]
+  (-> token str->jwt (verify "secret")))
+
+(let [token (-> claim jwt (sign :RS256 prv-key) to-str)]
+  (-> token str->jwt (verify pub-key)))
 ```
 
 ## License
