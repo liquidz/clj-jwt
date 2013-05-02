@@ -1,4 +1,4 @@
-(ns jwt.rsa.key
+(ns clj-jwt.rsa.key
   (:require [clojure.java.io :as io])
   (:import  [org.bouncycastle.openssl PasswordFinder PEMReader]))
 

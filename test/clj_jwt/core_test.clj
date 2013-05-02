@@ -1,9 +1,9 @@
-(ns jwt.core-test
+(ns clj-jwt.core-test
   (:require
-    [jwt.core      :refer :all]
-    [jwt.rsa.key   :refer [rsa-private-key rsa-public-key]]
-    [clj-time.core :refer [date-time plus days now]]
-    [midje.sweet   :refer :all]))
+    [clj-jwt.core    :refer :all]
+    [clj-jwt.rsa.key :refer [rsa-private-key rsa-public-key]]
+    [clj-time.core   :refer [date-time plus days now]]
+    [midje.sweet     :refer :all]))
 
 (def claim {:iss "foo"})
 (def prv-key (rsa-private-key     "test/files/rsa/no_pass.key"))

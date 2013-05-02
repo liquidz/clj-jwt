@@ -1,6 +1,6 @@
-(ns jwt.sign
+(ns clj-jwt.sign
   (:require
-    [jwt.base64 :refer [url-safe-encode-str url-safe-decode]]))
+    [clj-jwt.base64 :refer [url-safe-encode-str url-safe-decode]]))
 
 (java.security.Security/addProvider
  (org.bouncycastle.jce.provider.BouncyCastleProvider.))

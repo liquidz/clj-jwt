@@ -1,7 +1,7 @@
-(ns jwt.core
+(ns clj-jwt.core
   (:require
-    [jwt.base64        :refer [url-safe-encode-str url-safe-decode-str]]
-    [jwt.sign          :refer [get-signature-fn get-verify-fn supported-algorithm?]]
+    [clj-jwt.base64    :refer [url-safe-encode-str url-safe-decode-str]]
+    [clj-jwt.sign      :refer [get-signature-fn get-verify-fn supported-algorithm?]]
     [clj-time.coerce   :refer [to-long]]
     [clojure.data.json :as json]
     [clojure.string    :as str]))

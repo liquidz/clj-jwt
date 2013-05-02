@@ -1,9 +1,9 @@
-(ns jwt.sign-test
+(ns clj-jwt.sign-test
   (:require
-    [jwt.sign    :refer :all]
-    [jwt.base64  :refer [url-safe-encode-str]]
-    [jwt.rsa.key :refer [rsa-private-key]]
-    [midje.sweet :refer :all]))
+    [clj-jwt.sign    :refer :all]
+    [clj-jwt.base64  :refer [url-safe-encode-str]]
+    [clj-jwt.rsa.key :refer [rsa-private-key]]
+    [midje.sweet     :refer :all]))
 
 (facts "HMAC"
   (let [[hs256 hs384 hs512] (map get-signature-fn [:HS256 :HS384 :HS512])

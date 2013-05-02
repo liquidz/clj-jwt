@@ -1,7 +1,7 @@
-(ns jwt.rsa.key-test
+(ns clj-jwt.rsa.key-test
   (:require
-    [jwt.rsa.key :refer :all]
-    [midje.sweet :refer :all]))
+    [clj-jwt.rsa.key :refer :all]
+    [midje.sweet     :refer :all]))
 
 (facts "rsa private key"
   (fact "non encrypt key"
@@ -27,10 +27,5 @@
     )
   (fact "encrypted key with wrong pass phrase"
     (type (rsa-public-key "test/files/rsa/3des.key" "wrong pass phrase"))
-    => (throws org.bouncycastle.openssl.EncryptionException)
-    )
-  )
-
-
-
+    => (throws org.bouncycastle.openssl.EncryptionException)))
 

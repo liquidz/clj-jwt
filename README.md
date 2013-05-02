@@ -18,9 +18,9 @@ A Clojure library for JSON Web Token(JWT)
 ```clojure
 (ns foo
   (:require
-    [jwt.core      :refer :all]
-    [jwt.rsa.key   :refer [rsa-private-key]]
-    [clj-time.core :refer [now plus days]]))
+    [clj-jwt.core    :refer :all]
+    [clj-jwt.rsa.key :refer [rsa-private-key]]
+    [clj-time.core   :refer [now plus days]]))
 
 (def claim
   {:iss "foo"
@@ -44,9 +44,9 @@ A Clojure library for JSON Web Token(JWT)
 ```clojure
 (ns foo
   (:require
-    [jwt.core      :refer :all]
-    [jwt.rsa.key   :refer [rsa-private-key rsa-public-key]]
-    [clj-time.core :refer [now plus days]]))
+    [clj-jwt.core    :refer :all]
+    [clj-jwt.rsa.key :refer [rsa-private-key rsa-public-key]]
+    [clj-time.core   :refer [now plus days]]))
 
 (def claim
   {:iss "foo"

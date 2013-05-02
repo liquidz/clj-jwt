@@ -1,7 +1,7 @@
-(ns jwt.base64-test
+(ns clj-jwt.base64-test
   (:require
-    [jwt.base64  :refer :all]
-    [midje.sweet :refer :all]))
+    [clj-jwt.base64 :refer :all]
+    [midje.sweet    :refer :all]))
 
 (facts "base64/encode"
   (fact "string -> byte array encode"
