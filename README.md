@@ -1,5 +1,7 @@
 # clj-jwt
 
+[![Build Status](https://travis-ci.org/liquidz/clj-jwt.png?branch=master)](https://travis-ci.org/liquidz/clj-jwt)
+
 A Clojure library for JSON Web Token(JWT)
 
 ## Supporting algorithms
