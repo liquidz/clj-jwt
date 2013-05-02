@@ -2,11 +2,15 @@
 
 [![Build Status](https://travis-ci.org/liquidz/clj-jwt.png?branch=master)](https://travis-ci.org/liquidz/clj-jwt)
 
-A Clojure library for JSON Web Token(JWT)
+A Clojure library for JSON Web Token(JWT) [draft-jones-json-web-token-10](http://tools.ietf.org/html/draft-jones-json-web-token-10)
 
 ## Supporting algorithms
  * HS256, HS384, HS512
  * RS256, RS384, RS512
+
+## Not supporting
+ * ECDSA algorithm
+ * JSON Web Encryption (JWE)
 
 ## Usage
 
