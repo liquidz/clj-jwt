@@ -2,6 +2,9 @@
   (:require [clojure.java.io :as io])
   (:import  [org.bouncycastle.openssl PasswordFinder PEMReader]))
 
+(java.security.Security/addProvider
+ (org.bouncycastle.jce.provider.BouncyCastleProvider.))
+
 (defn- password-finder [s]
   (reify PasswordFinder
     (getPassword [this] (.toCharArray s))))
