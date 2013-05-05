@@ -1,9 +1,9 @@
 (ns clj-jwt.sign-test
   (:require
-    [clj-jwt.sign    :refer :all]
-    [clj-jwt.base64  :refer [url-safe-encode-str]]
-    [clj-jwt.rsa.key :refer [rsa-private-key]]
-    [midje.sweet     :refer :all]))
+    [clj-jwt.sign   :refer :all]
+    [clj-jwt.base64 :refer [url-safe-encode-str]]
+    [clj-jwt.key    :refer [private-key]]
+    [midje.sweet    :refer :all]))
 
 (facts "HMAC"
   (let [[hs256 hs384 hs512] (map get-signature-fn [:HS256 :HS384 :HS512])
@@ -20,7 +20,7 @@
 
 (facts "RSA"
   (let [[rs256 rs384 rs512] (map get-signature-fn [:RS256 :RS384 :RS512])
-        key (rsa-private-key "test/files/rsa/no_pass.key")
+        key (private-key "test/files/rsa/no_pass.key")
         body "foo"]
     (fact "RS256"
       (rs256 key body) => (str "VUbrxVb4ud4Iqh8h3rBHijagwFbXyml6FkqgYl9JhauWMZReM4brJh__KlBeF"
@@ -37,7 +37,16 @@
                                "A-Z1j3LeLKFWhryRRAjzW--Ut5rs5t0MjJ4OgUUhXAEXXAeJfbeEVxzBv4C-F"
                                "e9avjnNjUgcPlJgQAMQbrLirSo8Z8hb1Iqz9f7pUuNLTkAQJA"))))
 
-
+(facts "EC"
+  (let [[es256 es384 es512] (map get-signature-fn [:ES256 :ES384 :ES512])
+        key  (private-key "test/files/ec/private.key")
+        body "foo"]
+    (fact "ES256"
+      (es256 key body) => string?)
+    (fact "ES384"
+      (es384 key body) => string?)
+    (fact "ES512"
+      (es512 key body) => string?)))
 
 
 

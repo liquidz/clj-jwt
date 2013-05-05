@@ -1,4 +1,4 @@
-(ns clj-jwt.rsa.key
+(ns clj-jwt.key
   (:require [clojure.java.io :as io])
   (:import  [org.bouncycastle.openssl PasswordFinder PEMReader]))
 
@@ -9,7 +9,7 @@
   (reify PasswordFinder
     (getPassword [this] (.toCharArray s))))
 
-(defn- rsa-key
+(defn- pem->key
   [filename & [pass-phrase]]
   (with-open [r (io/reader filename)]
     (let [pr (if pass-phrase
@@ -17,13 +17,18 @@
                (PEMReader. r))]
       (.readObject pr))))
 
-(defn rsa-private-key
+(defn private-key
   [& args]
-  (.getPrivate (apply rsa-key args)))
+  (.getPrivate (apply pem->key args)))
 
-(defn rsa-public-key
+(defn- public-key? [k]
+  (let [typ (type k)]
+    (or (= org.bouncycastle.jce.provider.JCERSAPublicKey typ)
+        (= org.bouncycastle.jce.provider.JCEECPublicKey typ))))
+
+(defn public-key
   [& args]
-  (let [res (apply rsa-key args)]
-    (if (= org.bouncycastle.jce.provider.JCERSAPublicKey (type res))
+  (let [res (apply pem->key args)]
+    (if (public-key? res)
       res
       (.getPublic res))))

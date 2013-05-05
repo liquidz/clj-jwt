@@ -36,21 +36,43 @@
                   (.update (.getBytes body charset)))]
     (.verify sig (url-safe-decode signature))))
 
+
+; ECDSA
+(defn- ec-sign
+  [alg key body & {:keys [charset] :or {charset "UTF-8"}}]
+  (let [sig (doto (java.security.Signature/getInstance alg)
+                  (.initSign key)
+                  (.update (.getBytes body charset)))]
+    (url-safe-encode-str (.sign sig))))
+
+(defn ec-verify
+  [alg key body signature & {:keys [charset] :or {charset "UTF-8"}}]
+  (let [sig (doto (java.security.Signature/getInstance alg)
+                  (.initSign key)
+                  (.update (.getBytes body charset)))]
+    (.verify sig (url-safe-decode signature))))
+
 (def ^:private signature-fns
   {:HS256 (partial hmac-sign "HmacSHA256")
    :HS384 (partial hmac-sign "HmacSHA384")
    :HS512 (partial hmac-sign "HmacSHA512")
    :RS256 (partial rsa-sign  "SHA256withRSA")
    :RS384 (partial rsa-sign  "SHA384withRSA")
-   :RS512 (partial rsa-sign  "SHA512withRSA")})
+   :RS512 (partial rsa-sign  "SHA512withRSA")
+   :ES256 (partial ec-sign   "SHA256withECDSA")
+   :ES384 (partial ec-sign   "SHA384withECDSA")
+   :ES512 (partial ec-sign   "SHA512withECDSA")})
 
 (def ^:private verify-fns
   {:HS256 (partial hmac-verify "HmacSHA256")
    :HS384 (partial hmac-verify "HmacSHA384")
    :HS512 (partial hmac-verify "HmacSHA512")
-   :RS256 (partial rsa-verify "SHA256withRSA")
-   :RS384 (partial rsa-verify "SHA384withRSA")
-   :RS512 (partial rsa-verify "SHA512withRSA")})
+   :RS256 (partial rsa-verify  "SHA256withRSA")
+   :RS384 (partial rsa-verify  "SHA384withRSA")
+   :RS512 (partial rsa-verify  "SHA512withRSA")
+   :ES256 (partial rsa-verify  "SHA256withECDSA")
+   :ES384 (partial rsa-verify  "SHA384withECDSA")
+   :ES512 (partial rsa-verify  "SHA512withECDSA")})
 
 (defn- get-fns [m alg]
   (if-let [f (get m alg)]
