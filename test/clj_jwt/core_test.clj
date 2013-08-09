@@ -76,13 +76,13 @@
             "4VKnwuyigZW5i0r0nTymBHa9auctCW9saJIk7Lt9GVLQkRM92exgEX3rqntZPQXm960FPr5-csgCuHnV"
             "qACM0zaoAL3x97lOgK_f93aw2g7Tv3AtXfN9LZ8P7YMfmnwGdeqZRREXWJcpc-7Dioo"))
 
-  (fact "'exp', 'nbf', 'iot' claims should be converted as IntDate."
+  (fact "'exp', 'nbf', 'iat' claims should be converted as IntDate."
     (let [d     (date-time 2000 1 2 3 4 5)
-          claim (merge claim {:exp (plus d (days 1)) :nbf d :iot d :dmy d})
+          claim (merge claim {:exp (plus d (days 1)) :nbf d :iat d :dmy d})
           token (jwt claim)]
       (-> token :claims :exp) => 946868645
       (-> token :claims :nbf) => 946782245
-      (-> token :claims :iot) => 946782245
+      (-> token :claims :iat) => 946782245
       (-> token :claims :dmy) => d)))
 
 (facts "JWT verify"
