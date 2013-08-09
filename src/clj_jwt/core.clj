@@ -28,7 +28,7 @@
 (extend-protocol JsonWebToken
   JWT
   (init [this claims]
-    (let [claims (reduce #(update-map % %2 to-intdate) claims [:exp :nbf :iot])]
+    (let [claims (reduce #(update-map % %2 to-intdate) claims [:exp :nbf :iat])]
       (assoc this :header {:alg "none" :typ "JWT"} :claims claims :signature "")))
 
   (encoded-header [this]
