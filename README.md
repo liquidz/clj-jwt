@@ -16,7 +16,7 @@ A Clojure library for JSON Web Token(JWT) [draft-jones-json-web-token-10](http:/
 
 ### Leiningen
 ```
-[clj-jwt "0.0.2"]
+[clj-jwt "0.0.4"]
 ```
 
 ### Generate
