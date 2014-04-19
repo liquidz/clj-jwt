@@ -19,62 +19,62 @@
 (facts "JWT tokenize"
   (fact "Plain JWT should be generated."
     (-> claim jwt to-str)
-    => "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJpc3MiOiJmb28ifQ.")
+    => "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJpc3MiOiJmb28ifQ.")
 
   (fact "If unknown algorithm is specified, exception is throwed."
     (-> claim jwt (sign :DUMMY "foo")) => (throws Exception))
 
   (fact "HS256 signed JWT should be generated."
     (-> claim jwt (sign "foo") to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmb28ifQ.mScNySwrJjjVjGiIaSW0blyb"
-            "g2knXpuokTzYio5XUFg")
+    => (str "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.8yUIo-xkh537lD_CZycqS1zB"
+            "NhBNkIrcfzaFgwt8zdg")
 
     (-> claim jwt (sign :HS256 "foo") to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmb28ifQ.mScNySwrJjjVjGiIaSW0blyb"
-            "g2knXpuokTzYio5XUFg"))
+    => (str "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.8yUIo-xkh537lD_CZycqS1zB"
+            "NhBNkIrcfzaFgwt8zdg"))
 
   (fact "HS384 signed JWT should be generated."
     (-> claim jwt (sign :HS384 "foo") to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJpc3MiOiJmb28ifQ.DamQl6Dv8-Ya92kJx6zKlF4n"
-            "xX12NO0V0vhFsOGbwTUIdtkc08Rt4pNQZukIJyNc"))
+    => (str "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.34ZaTLCZGBAfcCryhYaFYy8Z"
+            "-47do1cftq365YmvIcubonhGdRnvpgV8s_iG_lvd"))
 
   (fact "HS512 signed JWT should be generated."
     (-> claim jwt (sign :HS512 "foo") to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJmb28ifQ.RoOaMBk4uzRmCAOCLg5h9QkL"
-            "FAugLwYeGGhXSjlJ57n4EHoapm6nvheJzIF8OlLYtjwdPcdFbsuaTgPSIa1tCQ"))
+    => (str "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.58Q4HxaxKAZIffEyDI2eRM_2"
+            "L7mK7NlNwOq8v96gbfZLMM7r2hxXKuwvMLez2XivUUCEyoaVB1Yz3vGtwAvSZQ"))
 
   (fact "RS256 signed JWT should be generated."
     (-> claim jwt (sign :RS256 rsa-prv-key) to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJmb28ifQ.CqIxuQMw8-sJR0X7v7DqvJua"
-            "ND2Oy_LpG_kc-SaAM_sfyuC2TMTnqKJiQLmr-VUbM5-EXiCF853xQIr6xnoNmrHFPgbLeynhPyfvsx1u"
-            "1RIw25z8r0ZJiNtNbSelueYRAjYlrnYUPxqreervGqkLRdEz5uBn3Vy250ggvHb3S_I")
+    => (str "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.ZIjAlGryslu1APkgY1eCmaK7"
+            "GDINiGX-htlD1-33F4VXK8lUXbdm1n9F1fpHcOFksScniWMvC5f9520jdxyb5c-9CmXz21iDtFdFKWGG"
+            "zlT_hPjZ0Ta_M8goReBO0L-nDM5hJHxzEqgSZQ7tkcJ18PCdxeMia5NMRV0shGMMUzU")
 
     (-> claim jwt (sign :RS256 rsa-enc-prv-key) to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJmb28ifQ.0oDxxzP3AoZGosxJSCKE9J9G"
-            "r_z1TYog8XbQvVaBPAscXPlGpesLP9Nu4PZDwkPa6qMuVYomcea4P61zIeFUNNPq_KhGtOLTEmw7fWX8"
-            "sjX-YAWxfz1lJFOkCeYrG3rRXzRJStZa-phsfI_f_XyiSbIM6FQrt_pn8z0KJvI-_Oo"))
+    => (str "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.E20DLUOR5VeoTKtH5FjR71rm"
+            "_rZV2AdXYDQCxqHpMWyZSO6wO4g67phTD727izDxd_NjuNXd2m7Atth7tGABaMhqHLh9EUwba_0nTbw6"
+            "mc_4mWaK4KBq8LG4WErQnFAVhzGbo1aEK_J7iasuUCfnxN9fZeBBUGH_h5JgPogCPdA"))
 
   (fact "RS384 signed JWT should be generated."
     (-> claim jwt (sign :RS384 rsa-prv-key) to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCJ9.eyJpc3MiOiJmb28ifQ.RIe33rDJ8qKN49qis9DnvEHt"
-            "cw2af5bndLWaEChSYFRd5MN5e0c936HkyV_40z2DCOLrKt-6HPz1zVePKYOiM0wKr_hEiPEBUtxo4EOS"
-            "l_XRHgGC2ol3NM57Z0NzUONW4L9GZoojaDopBxfT5zYxt403dgbsp6BzYlnnODHCbfs")
+    => (str "eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.sWyMCwJhztfOcSoxRRiCAioB"
+            "H5F8WFJs5t8DxPV0D7JvB9JwaN8reIQ7kFKJiQWFbhrC7tnlT5UDX9z3fyLjdmNvLTSOII3J9UPpidE1"
+            "4WvqnXk5DV8k4QxTdWHRufssDFZe7Bsq5yBRAGZos2e8U9hOuqxCib7EjGCe09PdDhg")
 
     (-> claim jwt (sign :RS384 rsa-enc-prv-key) to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCJ9.eyJpc3MiOiJmb28ifQ.Goh6VyLf3RmVzfh708QKLrVb"
-            "x4nLa8SOnXb3mV_UqGRqU6KGO712rMNXbRVddkktC1d1xgxv13XKgZX2RVTMb0utI_yii0hCSHijnvSb"
-            "x7CgQOJLdXPryQ_K1pUcZWPZbQ965O07XxHApGEjMPVZYFF6GhiGe0xBjR4TCNNOipA"))
+    => (str "eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.Uz3ZGXNuuKYsmoslBrNJnVKC"
+            "GW-dptW-eOWPrTGVN1P54bgjS6QbhwE-PPL2HHGUIYlebVmHb2RKLLvmQ8y63NZ1QSXEk8QBz5-bwy6Y"
+            "m_QCYh4tfvZYheH97zHcLF3GDLlfrodukO9gGc1xpiXJiZMtIso6sGACHmXNn4LA1bk"))
 
   (fact "RS512 signed JWT should be generated."
     (-> claim jwt (sign :RS512 rsa-prv-key) to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJpc3MiOiJmb28ifQ.stQhJDu0Hv1ZMTBBYyGNPjap"
-            "HyDrWRDJSJARhHXmC0T2LkOEtNGBFeQ4mojvxcwd1u2FUu9N5KEmCsmqMpaIubVvdd4GkmGQ4REhR7Cm"
-            "YFBvB4dFPCpG_B8jn5QkYpXm_zr4wXhW6mdSR4oq_wsULT5O4Z8haoSCl3ysT9SbI0g")
+    => (str "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.QKK5oOrVU5e0eG0nt7a_3Hzw"
+            "v1YJIp1F3iSKVgbdjWyp6rhyS4O4HEql6UxUOVDvf_aTrO4NG81dIo_wzjI1LBNCVtwKhR-8KUFs4Yg3"
+            "1NLwBMazIzxX_IfkpIkUPuyDGrca7pksJ9dppte33mMK3MDv0RQQqgXiJpbLRGWSNrs")
 
     (-> claim jwt (sign :RS512 rsa-enc-prv-key) to-str)
-    => (str "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJpc3MiOiJmb28ifQ.LsOapoyhzPzsFy1dkP7o-Se9"
-            "4VKnwuyigZW5i0r0nTymBHa9auctCW9saJIk7Lt9GVLQkRM92exgEX3rqntZPQXm960FPr5-csgCuHnV"
-            "qACM0zaoAL3x97lOgK_f93aw2g7Tv3AtXfN9LZ8P7YMfmnwGdeqZRREXWJcpc-7Dioo"))
+    => (str "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28ifQ.P6ER78xL8AlV4BXrtTtBIcsc"
+            "JOktKH03Uj12mqjiS6o1h4Cf7QHKXjWxe33hrEgkzcYBHDqw7wH915f6ZnB5mkvDtBkLinA9gK0M2rfB"
+            "7NqAbxXYMDXti2PhV9PgRzOp97zPCSD98bML0Cy89E8sPcnM7-07wWOK4yhuoTWyV_8"))
 
   (fact "'exp', 'nbf', 'iat' claims should be converted as IntDate."
     (let [d     (date-time 2000 1 2 3 4 5)
