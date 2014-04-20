@@ -2,7 +2,7 @@
   (:require
     [clj-jwt.base64    :refer [url-safe-encode-str url-safe-decode-str]]
     [clj-jwt.sign      :refer [get-signature-fn get-verify-fn supported-algorithm?]]
-    [clj-time.coerce   :refer [to-long]]
+    [clj-jwt.intdate   :refer [joda-time->intdate]]
     [clojure.data.json :as json]
     [clojure.string    :as str]))
 
@@ -10,8 +10,6 @@
 (def ^:private map->encoded-json (comp url-safe-encode-str json/write-str))
 (def ^:private encoded-json->map (comp #(json/read-str % :key-fn keyword) url-safe-decode-str))
 (defn- update-map [m k f] (if (contains? m k) (update-in m [k] f) m))
-(defn- joda-time? [x] (= org.joda.time.DateTime (type x)))
-(defn- to-intdate [d] {:pre [(joda-time? d)]} (int (/ (to-long d) 1000)))
 
 (defrecord JWT [header claims signature])
 
@@ -28,7 +26,7 @@
 (extend-protocol JsonWebToken
   JWT
   (init [this claims]
-    (let [claims (reduce #(update-map % %2 to-intdate) claims [:exp :nbf :iat])]
+    (let [claims (reduce #(update-map % %2 joda-time->intdate) claims [:exp :nbf :iat])]
       (assoc this :header {:alg "none" :typ "JWT"} :claims claims :signature "")))
 
   (encoded-header [this]
