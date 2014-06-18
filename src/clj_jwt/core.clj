@@ -7,8 +7,11 @@
     [clojure.string    :as str]))
 
 (def ^:private DEFAULT_SIGNATURE_ALGORITHM :HS256)
-(def ^:private map->encoded-json (comp url-safe-encode-str json/write-str))
-(def ^:private encoded-json->map (comp #(json/read-str % :key-fn keyword) url-safe-decode-str))
+(def ^:private full-key-name #(subs (str %) 1))
+(def ^:private map->encoded-json (comp url-safe-encode-str
+                                       #(json/write-str % :key-fn full-key-name)))
+(def ^:private encoded-json->map (comp #(json/read-str % :key-fn keyword)
+                                       url-safe-decode-str))
 (defn- update-map [m k f] (if (contains? m k) (update-in m [k] f) m))
 
 (defrecord JWT [header claims signature])

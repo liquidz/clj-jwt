@@ -147,7 +147,13 @@
 
   (fact "ES512 signed JWT shoud be verified."
     (-> claim jwt (sign :ES512 ec-prv-key) (verify ec-pub-key))                 => true
-    (-> claim jwt (sign :ES512 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true))
+    (-> claim jwt (sign :ES512 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
+
+  (fact "Claims containing string key should be verified"
+    (let [sclaim {"a/b" "c"}]
+      (-> sclaim jwt (sign "foo") (verify "foo"))                 => true
+      (-> sclaim jwt (sign "foo") to-str str->jwt (verify "foo")) => true
+      (-> sclaim jwt (sign "foo") (verify "bar"))                 => false)))
 
 
 (facts "str->jwt function should work."
