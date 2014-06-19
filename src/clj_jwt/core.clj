@@ -1,16 +1,16 @@
 (ns clj-jwt.core
   (:require
-    [clj-jwt.base64    :refer [url-safe-encode-str url-safe-decode-str]]
-    [clj-jwt.sign      :refer [get-signature-fn get-verify-fn supported-algorithm?]]
-    [clj-jwt.intdate   :refer [joda-time->intdate]]
-    [clojure.data.json :as json]
-    [clojure.string    :as str]))
+    [clj-jwt.base64      :refer [url-safe-encode-str url-safe-decode-str]]
+    [clj-jwt.sign        :refer [get-signature-fn get-verify-fn supported-algorithm?]]
+    [clj-jwt.intdate     :refer [joda-time->intdate]]
+    [clj-jwt.json-key-fn :refer [write-key read-key]]
+    [clojure.data.json   :as json]
+    [clojure.string      :as str]))
 
 (def ^:private DEFAULT_SIGNATURE_ALGORITHM :HS256)
-(def ^:private full-key-name #(subs (str %) 1))
 (def ^:private map->encoded-json (comp url-safe-encode-str
-                                       #(json/write-str % :key-fn full-key-name)))
-(def ^:private encoded-json->map (comp #(json/read-str % :key-fn keyword)
+                                       #(json/write-str % :key-fn write-key)))
+(def ^:private encoded-json->map (comp #(json/read-str % :key-fn read-key)
                                        url-safe-decode-str))
 (defn- update-map [m k f] (if (contains? m k) (update-in m [k] f) m))
 

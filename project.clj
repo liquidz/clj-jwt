@@ -1,4 +1,4 @@
-(defproject clj-jwt "0.0.7"
+(defproject clj-jwt "0.0.8"
   :description  "Clojure library for JSON Web Token(JWT)"
   :url          "https://github.com/liquidz/clj-jwt"
   :license      {:name "Eclipse Public License"

@@ -150,11 +150,11 @@
     (-> claim jwt (sign :ES512 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
 
   (fact "Claims containing string key should be verified"
-    (let [sclaim {"a/b" "c"}]
-      (-> sclaim jwt (sign "foo") (verify "foo"))                 => true
-      (-> sclaim jwt (sign "foo") to-str str->jwt (verify "foo")) => true
-      (-> sclaim jwt (sign "foo") (verify "bar"))                 => false)))
-
+    (let [sclaim {"a/b" "c"}
+          token  (-> sclaim jwt (sign "foo"))]
+      (verify token "foo")                                 => true
+      (-> token to-str str->jwt (verify "foo"))            => true
+      (verify token "bar")                                 => false)))
 
 (facts "str->jwt function should work."
   (let [before (jwt claim)
@@ -168,6 +168,14 @@
         before (-> claim jwt (sign "foo"))
         after  (-> before to-str str->jwt)]
     (fact "signed jwt"
+      (:header before)    => (:header after)
+      (:claims before)    => (:claims after)
+      (:signature before) => (:signature after)))
+
+  (let [claim {"a/b" "c"}
+        before (jwt claim)
+        after  (-> before to-str str->jwt)]
+    (fact "Claim containing string key"
       (:header before)    => (:header after)
       (:claims before)    => (:claims after)
       (:signature before) => (:signature after))))
