@@ -3,7 +3,17 @@
     [clj-jwt.core  :refer :all]
     [clj-jwt.key   :refer [private-key public-key]]
     [clj-time.core :refer [date-time plus days now]]
-    [midje.sweet   :refer :all]))
+    [midje.sweet   :refer :all])
+  (:import
+   [java.security Security]
+   [org.bouncycastle.jce.provider BouncyCastleProvider]))
+
+(defn with-bc-provider-fn [f]
+  (try
+    (Security/insertProviderAt (BouncyCastleProvider.) 1)
+    (f)
+    (finally
+      (java.security.Security/removeProvider "BC"))))
 
 (def claim {:iss "foo"})
 (def rsa-prv-key     (private-key "test/files/rsa/no_pass.key"))
@@ -12,9 +22,9 @@
 (def rsa-enc-pub-key (public-key  "test/files/rsa/3des.pub.key"))
 (def rsa-dmy-key     (public-key  "test/files/rsa/dummy.key"))
 
-(def ec-prv-key      (private-key "test/files/ec/private.key"))
-(def ec-pub-key      (public-key  "test/files/ec/public.key"))
-(def ec-dmy-key      (public-key  "test/files/ec/dummy.key"))
+(def ec-prv-key      (with-bc-provider-fn #(private-key "test/files/ec/private.key")))
+(def ec-pub-key      (with-bc-provider-fn #(public-key  "test/files/ec/public.key")))
+(def ec-dmy-key      (with-bc-provider-fn #(public-key  "test/files/ec/dummy.key")))
 
 (facts "JWT tokenize"
   (fact "Plain JWT should be generated."
@@ -157,23 +167,23 @@
     (-> claim jwt (sign :RS512 rsa-enc-prv-key) to-str str->jwt (verify rsa-enc-pub-key)) => true
     (-> claim jwt (sign :RS512 rsa-enc-prv-key) (verify rsa-dmy-key))                     => false)
 
-  (fact "ES256 signed JWT shoud be verified."
+(with-state-changes [(around :facts (with-bc-provider-fn (fn [] ?form)))]
+  (fact "ES256 signed JWT should be verified."
     (-> claim jwt (sign :ES256 ec-prv-key) (verify ec-pub-key))                 => true
     (-> claim jwt (sign :ES256 ec-prv-key) (verify :ES256 ec-pub-key))          => true
     (-> claim jwt (sign :ES256 ec-prv-key) (verify :ES384 ec-pub-key))          => false
     (-> claim jwt (sign :ES256 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
-
-  (fact "ES384 signed JWT shoud be verified."
+    (fact "ES384 signed JWT should be verified."
     (-> claim jwt (sign :ES384 ec-prv-key) (verify ec-pub-key))                 => true
     (-> claim jwt (sign :ES384 ec-prv-key) (verify :ES384 ec-pub-key))          => true
     (-> claim jwt (sign :ES384 ec-prv-key) (verify :ES256 ec-pub-key))          => false
     (-> claim jwt (sign :ES384 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
 
-  (fact "ES512 signed JWT shoud be verified."
+  (fact "ES512 signed JWT should be verified."
     (-> claim jwt (sign :ES512 ec-prv-key) (verify ec-pub-key))                 => true
     (-> claim jwt (sign :ES512 ec-prv-key) (verify :ES512 ec-pub-key))          => true
     (-> claim jwt (sign :ES512 ec-prv-key) (verify :ES256 ec-pub-key))          => false
-    (-> claim jwt (sign :ES512 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
+    (-> claim jwt (sign :ES512 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true))
 
   (fact "Claims containing string key should be verified"
     (let [sclaim {"a/b" "c"}
