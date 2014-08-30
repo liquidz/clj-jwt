@@ -1,6 +1,7 @@
 (ns clj-jwt.sign
   (:require
-    [clj-jwt.base64 :refer [url-safe-encode-str url-safe-decode]]))
+    [clj-jwt.base64 :refer [url-safe-encode-str url-safe-decode]]
+    [crypto.equality :as creq]))
 
 (java.security.Security/addProvider
  (org.bouncycastle.jce.provider.BouncyCastleProvider.))
@@ -17,7 +18,7 @@
 (defn- hmac-verify
   "Function to verify data and signature with HMAC algorithm."
   [alg key body signature & {:keys [charset] :or {charset "UTF-8"}}]
-  (= signature (hmac-sign alg key body :charset charset)))
+  (creq/eq? signature (hmac-sign alg key body :charset charset)))
 
 ; RSA
 (defn- rsa-sign
