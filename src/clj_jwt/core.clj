@@ -68,6 +68,9 @@
     ([this key]
      (let [alg (-> this :header :alg keyword)]
        (cond
+         (and (= :none alg) (not (= "" key)))
+         false
+
          (= :none alg) (= "" (:signature this))
 
          (supported-algorithm? alg)
@@ -87,4 +90,3 @@
     (->JWT (encoded-json->map header)
            (encoded-json->map claims)
            (or signature ""))))
-
