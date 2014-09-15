@@ -93,24 +93,22 @@
   (fact "Plain JWT should be verified."
     (-> claim jwt verify) => true
     (-> claim jwt to-str str->jwt verify) => true
+    (-> claim jwt to-str str->jwt (verify "foo")) => false
     (-> claim jwt (assoc :signature "foo") verify) => false)
 
   (fact "HS256 signed JWT should be verified."
     (-> claim jwt (sign "foo") (verify "foo"))                 => true
     (-> claim jwt (sign "foo") to-str str->jwt (verify "foo")) => true
-    (-> claim jwt              to-str str->jwt (verify "foo")) => false
     (-> claim jwt (sign "foo") (verify "bar"))                 => false)
 
   (fact "HS384 signed JWT should be verified."
     (-> claim jwt (sign :HS384 "foo") (verify "foo"))                 => true
     (-> claim jwt (sign :HS384 "foo") to-str str->jwt (verify "foo")) => true
-    (-> claim jwt                     to-str str->jwt (verify "foo")) => false
     (-> claim jwt (sign :HS384 "foo") (verify "bar"))                 => false)
 
   (fact "HS512 signed JWT should be verified."
     (-> claim jwt (sign :HS512 "foo") (verify "foo"))                 => true
     (-> claim jwt (sign :HS512 "foo") to-str str->jwt (verify "foo")) => true
-    (-> claim jwt                     to-str str->jwt (verify "foo")) => false
     (-> claim jwt (sign :HS512 "foo") (verify "bar"))                 => false)
 
   (fact "RS256 signed JWT should be verified."

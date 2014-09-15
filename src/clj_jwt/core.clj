@@ -69,10 +69,7 @@
     ([this key]
      (let [alg (-> this :header :alg keyword)]
        (cond
-         (and (= :none alg) (not (= "" key)))
-         false
-
-         (= :none alg) (= "" (:signature this))
+         (= :none alg) (= "" key (:signature this))
 
          (supported-algorithm? alg)
          (let [verify-fn (get-verify-fn alg)
