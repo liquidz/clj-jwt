@@ -93,6 +93,7 @@
   (fact "Plain JWT should be verified."
     (-> claim jwt verify) => true
     (-> claim jwt to-str str->jwt verify) => true
+    (-> claim jwt to-str str->jwt (verify "foo")) => false
     (-> claim jwt (assoc :signature "foo") verify) => false)
 
   (fact "HS256 signed JWT should be verified."
