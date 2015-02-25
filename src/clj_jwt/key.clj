@@ -38,7 +38,7 @@
 (defn public-key-from-string
   [key-str & [pass-phrase]]
   (with-open [r (StringReader. key-str)]
-    (let [res (pem->key r pass-phrase)]
+    (when-let [res (pem->key r pass-phrase)]
       (if (public-key? res)
         res
         (.getPublic res)))))

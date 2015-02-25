@@ -45,7 +45,9 @@
   (fact "rsa encrypted key with wrong pass phrase from string"
     (-> "test/files/rsa/3des.key" slurp (public-key-from-string "wrong pass phrase") type)
     => (throws org.bouncycastle.openssl.EncryptionException))
-  )
+
+  (fact "invalid key string"
+    (public-key-from-string "foobar") => nil))
 
 (facts "ecdsa public key"
   (fact "ecdsa public key"

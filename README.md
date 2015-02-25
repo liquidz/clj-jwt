@@ -86,6 +86,6 @@ A Clojure library for JSON Web Token(JWT) [draft-ietf-oauth-json-web-token-19](h
 
 ## License
 
-Copyright © 2014 [uochan](http://twitter.com/uochan)
+Copyright © 2015 [uochan](http://twitter.com/uochan)
 
 Distributed under the Eclipse Public License, the same as Clojure.

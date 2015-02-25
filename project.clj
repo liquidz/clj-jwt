@@ -1,4 +1,4 @@
-(defproject clj-jwt "0.0.11"
+(defproject clj-jwt "0.0.12"
   :description  "Clojure library for JSON Web Token(JWT)"
   :url          "https://github.com/liquidz/clj-jwt"
   :license      {:name "Eclipse Public License"
@@ -8,7 +8,7 @@
                  [org.clojure/data.codec "0.1.0"]
                  [org.bouncycastle/bcprov-jdk15 "1.46"]
                  [crypto-equality "1.0.0"]
-                 [clj-time "0.8.0"]]
+                 [clj-time "0.9.0"]]
 
   :profiles {:dev {:dependencies [[midje "1.6.3"  :exclusions [org.clojure/clojure]]]}}
   :plugins  [[lein-midje "3.1.3"]])
