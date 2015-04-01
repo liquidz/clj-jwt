@@ -49,7 +49,7 @@
   "Protocol for JonWebSignature"
   (set-alg [this alg] "Set algorithm name to JWS Header Parameter")
   (sign    [this key] [this alg key] "Set signature to this token")
-  (verify  [this] [this key] "Verify this token"))
+  (verify  [this] [this key] [this algorithm key] "Verify this token"))
 
 (extend-protocol JsonWebSignature
   JWT
@@ -76,7 +76,11 @@
                data    (str (encoded-header this) "." (encoded-claims this))]
            (verify-fn key data (:signature this)))
 
-         :else (throw (Exception. "Unkown signature")))))))
+         :else (throw (Exception. "Unkown signature")))))
+    ([this algorithm key]
+     (if (= algorithm (-> this :header :alg keyword))
+       (verify this key)
+       false))))
 
 ; =jwt
 (defn jwt [claim] (init (->JWT "" "" "") claim))
