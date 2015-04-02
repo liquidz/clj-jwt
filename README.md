@@ -84,6 +84,20 @@ A Clojure library for JSON Web Token(JWT) [draft-ietf-oauth-json-web-token-19](h
   (-> token str->jwt (verify ec-pub-key)))
 ```
 
+You can specify algorithm name (OPTIONAL) for more secure verification.
+
+```clj
+(ns foo
+  (:require
+    [clj-jwt.core  :refer :all]))
+
+;; verify with specified algorithm
+(let [key   "secret"
+      token (-> {:foo "bar"} jwt (sign :HS256 key) to-str)]
+  (-> token str->jwt (verify :HS256 key)) ;; => true
+  (-> token str->jwt (verify :none key))) ;; => false
+```
+
 ## License
 
 Copyright © 2015 [uochan](http://twitter.com/uochan)

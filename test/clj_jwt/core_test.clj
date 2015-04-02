@@ -91,37 +91,52 @@
     (verify (->JWT {:typ "JWT" :alg "DUMMY"} claim "") "") => (throws Exception))
 
   (fact "Plain JWT should be verified."
-    (-> claim jwt verify) => true
-    (-> claim jwt to-str str->jwt verify) => true
-    (-> claim jwt to-str str->jwt (verify "foo")) => false
-    (-> claim jwt (assoc :signature "foo") verify) => false)
+    (-> claim jwt verify)                             => true
+    (-> claim jwt (verify ""))                        => true
+    (-> claim jwt (verify :none ""))                  => true
+    (-> claim jwt to-str str->jwt verify)             => true
+    (-> claim jwt to-str str->jwt (verify "foo"))     => false
+    (-> claim jwt to-str str->jwt (verify :HS256 "")) => false
+    (-> claim jwt (assoc :signature "foo") verify)    => false)
 
   (fact "HS256 signed JWT should be verified."
     (-> claim jwt (sign "foo") (verify "foo"))                 => true
+    (-> claim jwt (sign "foo") (verify :HS256 "foo"))          => true
+    (-> claim jwt (sign "foo") (verify :HS384 "foo"))          => false
     (-> claim jwt (sign "foo") to-str str->jwt (verify "foo")) => true
     (-> claim jwt (sign "foo") (verify "bar"))                 => false)
 
   (fact "HS384 signed JWT should be verified."
     (-> claim jwt (sign :HS384 "foo") (verify "foo"))                 => true
+    (-> claim jwt (sign :HS384 "foo") (verify :HS384 "foo"))          => true
+    (-> claim jwt (sign :HS384 "foo") (verify :HS256 "foo"))          => false
     (-> claim jwt (sign :HS384 "foo") to-str str->jwt (verify "foo")) => true
     (-> claim jwt (sign :HS384 "foo") (verify "bar"))                 => false)
 
   (fact "HS512 signed JWT should be verified."
     (-> claim jwt (sign :HS512 "foo") (verify "foo"))                 => true
+    (-> claim jwt (sign :HS512 "foo") (verify :HS512 "foo"))          => true
+    (-> claim jwt (sign :HS512 "foo") (verify :HS256 "foo"))          => false
     (-> claim jwt (sign :HS512 "foo") to-str str->jwt (verify "foo")) => true
     (-> claim jwt (sign :HS512 "foo") (verify "bar"))                 => false)
 
   (fact "RS256 signed JWT should be verified."
     (-> claim jwt (sign :RS256 rsa-prv-key) (verify rsa-pub-key))                 => true
+    (-> claim jwt (sign :RS256 rsa-prv-key) (verify :RS256 rsa-pub-key))          => true
+    (-> claim jwt (sign :RS256 rsa-prv-key) (verify :RS384 rsa-pub-key))          => false
     (-> claim jwt (sign :RS256 rsa-prv-key) to-str str->jwt (verify rsa-pub-key)) => true
     (-> claim jwt (sign :RS256 rsa-prv-key) (verify rsa-dmy-key))                 => false
 
     (-> claim jwt (sign :RS256 rsa-enc-prv-key) (verify rsa-enc-pub-key))                 => true
+    (-> claim jwt (sign :RS256 rsa-enc-prv-key) (verify :RS256 rsa-enc-pub-key))          => true
+    (-> claim jwt (sign :RS256 rsa-enc-prv-key) (verify :RS384 rsa-enc-pub-key))          => false
     (-> claim jwt (sign :RS256 rsa-enc-prv-key) to-str str->jwt (verify rsa-enc-pub-key)) => true
     (-> claim jwt (sign :RS256 rsa-enc-prv-key) (verify rsa-dmy-key))                     => false)
 
   (fact "RS384 signed JWT should be verified."
     (-> claim jwt (sign :RS384 rsa-prv-key) (verify rsa-pub-key))                 => true
+    (-> claim jwt (sign :RS384 rsa-prv-key) (verify :RS384 rsa-pub-key))          => true
+    (-> claim jwt (sign :RS384 rsa-prv-key) (verify :RS256 rsa-pub-key))          => false
     (-> claim jwt (sign :RS384 rsa-prv-key) to-str str->jwt (verify rsa-pub-key)) => true
     (-> claim jwt (sign :RS384 rsa-prv-key) (verify rsa-dmy-key))                 => false
 
@@ -131,23 +146,33 @@
 
   (fact "RS512 signed JWT should be verified."
     (-> claim jwt (sign :RS512 rsa-prv-key) (verify rsa-pub-key))                 => true
+    (-> claim jwt (sign :RS512 rsa-prv-key) (verify :RS512 rsa-pub-key))          => true
+    (-> claim jwt (sign :RS512 rsa-prv-key) (verify :RS256 rsa-pub-key))          => false
     (-> claim jwt (sign :RS512 rsa-prv-key) to-str str->jwt (verify rsa-pub-key)) => true
     (-> claim jwt (sign :RS512 rsa-prv-key) (verify rsa-dmy-key))                 => false
 
     (-> claim jwt (sign :RS512 rsa-enc-prv-key) (verify rsa-enc-pub-key))                 => true
+    (-> claim jwt (sign :RS512 rsa-enc-prv-key) (verify :RS512 rsa-enc-pub-key))          => true
+    (-> claim jwt (sign :RS512 rsa-enc-prv-key) (verify :RS256 rsa-enc-pub-key))          => false
     (-> claim jwt (sign :RS512 rsa-enc-prv-key) to-str str->jwt (verify rsa-enc-pub-key)) => true
     (-> claim jwt (sign :RS512 rsa-enc-prv-key) (verify rsa-dmy-key))                     => false)
 
   (fact "ES256 signed JWT shoud be verified."
     (-> claim jwt (sign :ES256 ec-prv-key) (verify ec-pub-key))                 => true
+    (-> claim jwt (sign :ES256 ec-prv-key) (verify :ES256 ec-pub-key))          => true
+    (-> claim jwt (sign :ES256 ec-prv-key) (verify :ES384 ec-pub-key))          => false
     (-> claim jwt (sign :ES256 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
 
   (fact "ES384 signed JWT shoud be verified."
     (-> claim jwt (sign :ES384 ec-prv-key) (verify ec-pub-key))                 => true
+    (-> claim jwt (sign :ES384 ec-prv-key) (verify :ES384 ec-pub-key))          => true
+    (-> claim jwt (sign :ES384 ec-prv-key) (verify :ES256 ec-pub-key))          => false
     (-> claim jwt (sign :ES384 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
 
   (fact "ES512 signed JWT shoud be verified."
     (-> claim jwt (sign :ES512 ec-prv-key) (verify ec-pub-key))                 => true
+    (-> claim jwt (sign :ES512 ec-prv-key) (verify :ES512 ec-pub-key))          => true
+    (-> claim jwt (sign :ES512 ec-prv-key) (verify :ES256 ec-pub-key))          => false
     (-> claim jwt (sign :ES512 ec-prv-key) to-str str->jwt (verify ec-pub-key)) => true)
 
   (fact "Claims containing string key should be verified"
