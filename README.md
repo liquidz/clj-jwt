@@ -98,6 +98,27 @@ You can specify algorithm name (OPTIONAL) for more secure verification.
   (-> token str->jwt (verify :none key))) ;; => false
 ```
 
+### Decode
+
+```clj
+(ns foo
+  (:require
+    [clj-jwt.core  :refer :all]))
+
+(def claim
+  {:iss "foo"
+   :exp (plus (now) (days 1))
+   :iat (now)})
+
+;; decode plain JWT
+(let [token (-> claim jwt to-str)]
+  (println (-> token str->jwt :claims)))
+
+;; decode signed JWT
+(let [token (-> claim jwt (sign :HS256 "secret") to-str)]
+  (println (-> token str->jwt :claims)))
+```
+
 ## License
 
 Copyright © 2015 [uochan](http://twitter.com/uochan)
