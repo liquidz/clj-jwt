@@ -1,44 +1,97 @@
 (ns clj-jwt.key
-  (:require [clojure.java.io :as io])
-  (:import  [org.bouncycastle.openssl PasswordFinder PEMReader]
-            [java.io StringReader]))
+  (:require
+    [clojure.java.io :as io])
+  (:import
+    [org.bouncycastle.openssl PEMParser PEMKeyPair PEMEncryptedKeyPair]
+    [org.bouncycastle.openssl.jcajce JcaPEMKeyConverter JcePEMDecryptorProviderBuilder]
+    [org.bouncycastle.asn1.pkcs PrivateKeyInfo]
+    [org.bouncycastle.asn1.x509 SubjectPublicKeyInfo]
+    [org.bouncycastle.cert X509CertificateHolder]
+    [java.io StringReader]))
 
-(java.security.Security/addProvider
-(org.bouncycastle.jce.provider.BouncyCastleProvider.))
+(defprotocol GetPrivateKey
+  (-get-private-key [key-info password]))
 
-(defn- password-finder [s]
-  (reify PasswordFinder
-    (getPassword [this] (.toCharArray s))))
+(defprotocol GetPublicKey
+  (-get-public-key [key-info password]))
 
-(defn- pem->key
+(defn ^JcaPEMKeyConverter pem-converter
+  []
+  (JcaPEMKeyConverter.))
+
+(extend-protocol GetPrivateKey
+  PrivateKeyInfo
+  (-get-private-key
+    [key-info _]
+    (.getPrivateKey (pem-converter) key-info)))
+
+(extend-protocol GetPublicKey
+  SubjectPublicKeyInfo
+  (-get-public-key
+    [key-info _]
+    (.getPublicKey (pem-converter) key-info))
+
+  X509CertificateHolder
+  (-get-public-key
+    [key-info password]
+    (-get-public-key (.getSubjectPublicKeyInfo key-info) password)))
+
+(extend-type PEMKeyPair
+  GetPrivateKey
+  (-get-private-key
+    [key-info _]
+    (-> (pem-converter)
+        (.getKeyPair key-info)
+        .getPrivate))
+
+  GetPublicKey
+  (-get-public-key
+    [key-info _]
+    (-> (pem-converter)
+        (.getKeyPair key-info)
+        .getPublic)))
+
+(extend-type PEMEncryptedKeyPair
+  GetPrivateKey
+  (-get-private-key
+    [key-info ^String password]
+    (let [dec-prov (-> (JcePEMDecryptorProviderBuilder.)
+                       (.build (.toCharArray password)))]
+      (-get-private-key (-> key-info
+                           (.decryptKeyPair dec-prov)) nil)))
+  GetPublicKey
+  (-get-public-key
+    [key-info ^String password]
+    (let [dec-prov (-> (JcePEMDecryptorProviderBuilder.)
+                       (.build (.toCharArray password)))]
+      (-get-public-key (-> key-info
+                           (.decryptKeyPair dec-prov)) nil))))
+
+(defn pem->public-key
   [reader pass-phrase]
-  (if pass-phrase
-    (.readObject (PEMReader. reader (password-finder pass-phrase)))
-    (.readObject (PEMReader. reader))))
+  (some-> reader
+          PEMParser.
+          .readObject
+          (-get-public-key pass-phrase)))
+
+(defn pem->private-key
+  [reader pass-phrase]
+  (some-> reader
+          PEMParser.
+          .readObject
+          (-get-private-key pass-phrase)))
 
 (defn private-key
   [filename & [pass-phrase]]
   (with-open [r (io/reader filename)]
-    (.getPrivate
-      (pem->key r pass-phrase))))
-
-(defn- public-key? [k]
-  (let [typ (type k)]
-    (or (= org.bouncycastle.jce.provider.JCERSAPublicKey typ)
-        (= org.bouncycastle.jce.provider.JCEECPublicKey  typ))))
+    (pem->private-key r pass-phrase)))
 
 (defn public-key
   [filename & [pass-phrase]]
   (with-open [r (io/reader filename)]
-    (let [res (pem->key r pass-phrase)]
-      (if (public-key? res)
-        res
-        (.getPublic res)))))
+    (pem->public-key r pass-phrase)))
 
 (defn public-key-from-string
   [key-str & [pass-phrase]]
   (with-open [r (StringReader. key-str)]
-    (when-let [res (pem->key r pass-phrase)]
-      (if (public-key? res)
-        res
-        (.getPublic res)))))
+    (pem->public-key r pass-phrase)))
