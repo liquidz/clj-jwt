@@ -1,7 +1,7 @@
 (ns clj-jwt.key-test
   (:require
-    [clj-jwt.key :refer :all]
-    [midje.sweet :refer :all]
+    [clj-jwt.key       :refer :all]
+    [midje.sweet       :refer :all]
     [clj-jwt.core-test :refer [with-bc-provider-fn]]))
 
 (with-state-changes [(around :facts (with-bc-provider-fn (fn [] ?form)))]

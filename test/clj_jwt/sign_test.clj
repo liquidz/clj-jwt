@@ -1,9 +1,9 @@
 (ns clj-jwt.sign-test
   (:require
-    [clj-jwt.sign   :refer :all]
-    [clj-jwt.base64 :refer [url-safe-encode-str]]
-    [clj-jwt.key    :refer [private-key]]
-    [midje.sweet    :refer :all]
+    [clj-jwt.sign      :refer :all]
+    [clj-jwt.base64    :refer [url-safe-encode-str]]
+    [clj-jwt.key       :refer [private-key]]
+    [midje.sweet       :refer :all]
     [clj-jwt.core-test :refer [with-bc-provider-fn]]))
 
 (facts "HMAC"

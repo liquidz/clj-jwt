@@ -8,7 +8,8 @@
    [java.security Security]
    [org.bouncycastle.jce.provider BouncyCastleProvider]))
 
-(defn with-bc-provider-fn [f]
+(defn with-bc-provider-fn
+  [f]
   (try
     (Security/insertProviderAt (BouncyCastleProvider.) 1)
     (f)
