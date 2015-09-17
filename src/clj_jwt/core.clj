@@ -14,7 +14,7 @@
                                        url-safe-decode-str))
 (defn- update-map [m k f] (if (contains? m k) (update-in m [k] f) m))
 
-(defrecord JWT [header claims signature])
+(defrecord JWT [header claims signature signed-data])
 
 ; ----------------------------------
 ; JsonWebToken
@@ -62,7 +62,7 @@
      (let [this*   (set-alg this alg)
            sign-fn (get-signature-fn alg)
            data    (str (encoded-header this*) "." (encoded-claims this*))]
-       (assoc this* :signature (sign-fn key data)))))
+       (assoc this* :signature (sign-fn key data) :signed-data data))))
 
   (verify
     ([this] (verify this ""))
@@ -72,9 +72,8 @@
          (= :none alg) (= "" key (:signature this))
 
          (supported-algorithm? alg)
-         (let [verify-fn (get-verify-fn alg)
-               data    (str (encoded-header this) "." (encoded-claims this))]
-           (verify-fn key data (:signature this)))
+         (let [verify-fn (get-verify-fn alg)]
+           (verify-fn key (:signed-data this) (:signature this)))
 
          :else (throw (Exception. "Unkown signature")))))
     ([this algorithm key]
@@ -83,7 +82,7 @@
        false))))
 
 ; =jwt
-(defn jwt [claim] (init (->JWT "" "" "") claim))
+(defn jwt [claim] (init (->JWT "" "" "" "") claim))
 
 ; =str->jwt
 (defn str->jwt
@@ -91,4 +90,5 @@
   (let [[header claims signature] (str/split jwt-string #"\.")]
     (->JWT (encoded-json->map header)
            (encoded-json->map claims)
-           (or signature ""))))
+           (or signature "")
+           (str header "." claims))))
