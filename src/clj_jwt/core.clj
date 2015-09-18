@@ -14,7 +14,7 @@
                                        url-safe-decode-str))
 (defn- update-map [m k f] (if (contains? m k) (update-in m [k] f) m))
 
-(defrecord JWT [header claims signature signed-data])
+(defrecord JWT [header claims signature encoded-data])
 
 ; ----------------------------------
 ; JsonWebToken
@@ -62,7 +62,7 @@
      (let [this*   (set-alg this alg)
            sign-fn (get-signature-fn alg)
            data    (str (encoded-header this*) "." (encoded-claims this*))]
-       (assoc this* :signature (sign-fn key data) :signed-data data))))
+       (assoc this* :signature (sign-fn key data) :encoded-data data))))
 
   (verify
     ([this] (verify this ""))
@@ -73,7 +73,7 @@
 
          (supported-algorithm? alg)
          (let [verify-fn (get-verify-fn alg)]
-           (verify-fn key (:signed-data this) (:signature this)))
+           (verify-fn key (:encoded-data this) (:signature this)))
 
          :else (throw (Exception. "Unkown signature")))))
     ([this algorithm key]
