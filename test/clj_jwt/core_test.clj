@@ -98,8 +98,8 @@
 
 (facts "JWT verify"
   (fact "Unknown signature algorithm should be thrown exception."
-    (verify (->JWT {:typ "JWT" :alg "DUMMY"} claim ""))    => (throws Exception)
-    (verify (->JWT {:typ "JWT" :alg "DUMMY"} claim "") "") => (throws Exception))
+    (verify (->JWT {:typ "JWT" :alg "DUMMY"} claim "" ""))    => (throws Exception)
+    (verify (->JWT {:typ "JWT" :alg "DUMMY"} claim "" "") "") => (throws Exception))
 
   (fact "Plain JWT should be verified."
     (-> claim jwt verify)                             => true
