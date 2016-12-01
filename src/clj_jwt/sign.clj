@@ -3,6 +3,11 @@
     [clj-jwt.base64  :refer [url-safe-encode-str url-safe-decode]]
     [crypto.equality :refer [eq?]]))
 
+; Initialize SecureRandom only once, since it requests a fresh
+; seed on every initialization and this can take a very long
+; time depending on which platform you use.
+(def random-source (delay (java.security.SecureRandom.)))
+
 ; HMAC
 (defn- hmac-sign
   "Function to sign data with HMAC algorithm."
@@ -22,7 +27,7 @@
   "Function to sign data with RSA algorithm."
   [alg key body & {:keys [charset] :or {charset "UTF-8"}}]
   (let [sig (doto (java.security.Signature/getInstance alg)
-                  (.initSign key (java.security.SecureRandom.))
+                  (.initSign key @random-source)
                   (.update (.getBytes body charset)))]
     (url-safe-encode-str (.sign sig))))
 
