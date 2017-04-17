@@ -7,7 +7,9 @@
 (defn- hmac-sign
   "Function to sign data with HMAC algorithm."
   [alg key body & {:keys [charset] :or {charset "UTF-8"}}]
-  (let [hmac-key (javax.crypto.spec.SecretKeySpec. (.getBytes key charset) alg)
+  (let [bin-key  (if (= (Class/forName "[B") (.getClass key)) key
+                     (.getBytes key charset))
+        hmac-key (javax.crypto.spec.SecretKeySpec. bin-key alg)
         hmac     (doto (javax.crypto.Mac/getInstance alg)
                        (.init hmac-key))]
     (url-safe-encode-str (.doFinal hmac (.getBytes body charset)))))
