@@ -95,3 +95,8 @@
   [key-str & [pass-phrase]]
   (with-open [r (StringReader. key-str)]
     (pem->public-key r pass-phrase)))
+
+(defn private-key-from-string
+  [key-str & [pass-phrase]]
+  (with-open [r (StringReader. key-str)]
+    (pem->private-key r pass-phrase)))
