@@ -68,9 +68,9 @@
    :RS256 (partial rsa-verify  "SHA256withRSA")
    :RS384 (partial rsa-verify  "SHA384withRSA")
    :RS512 (partial rsa-verify  "SHA512withRSA")
-   :ES256 (partial rsa-verify  "SHA256withECDSA")
-   :ES384 (partial rsa-verify  "SHA384withECDSA")
-   :ES512 (partial rsa-verify  "SHA512withECDSA")})
+   :ES256 (partial ec-verify  "SHA256withECDSA")
+   :ES384 (partial ec-verify  "SHA384withECDSA")
+   :ES512 (partial ec-verify  "SHA512withECDSA")})
 
 (defn- get-fns [m alg]
   (if-let [f (get m alg)]
