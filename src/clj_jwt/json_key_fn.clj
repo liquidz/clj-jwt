@@ -2,16 +2,13 @@
   (:require
     [clojure.string :as str]))
 
-(defn write-key
-  [x]
-  (cond
-    (string? x) (str "\"" x "\"")
-    :else (name x)))
+(def write-key name)
 
 (defn read-key
+  "don't keywordize keys with / or ."
   [x]
-  (if-let [y (re-seq #"^\"(.*)\"$" x)]
-    (-> y first second)
+  (if (re-matches #".*[/.].*" x)
+    x
     (keyword x)))
 
 

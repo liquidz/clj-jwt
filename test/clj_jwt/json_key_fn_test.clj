@@ -5,8 +5,8 @@
 
 (fact "write-key should work fine."
   (write-key :foo)  => "foo"
-  (write-key "foo") => "\"foo\"")
+  (write-key "foo") => "foo")
 
 (fact "read-key should work fine."
   (read-key "foo")     => :foo
-  (read-key "\"foo\"") => "foo")
+  (read-key "foo/bar") => "foo/bar")
